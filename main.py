@@ -110,10 +110,11 @@ def ghostCollisions(app):
         or (app.pacman.row==app.blinky.row and app.pacman.col==app.blinky.col) 
         or (app.pacman.row==app.pinky.row and app.pacman.col==app.pinky.col) 
         or (app.pacman.row==app.clyde.row and app.pacman.col==app.clyde.col)):
-        app.isWin=True
+        app.isLose=True
 
 def appStarted(app):
     app.isWin=False
+    app.isLose=False
     app.numPellets=0
     app.numRows=15
     app.numCols=15
@@ -138,7 +139,7 @@ def keyPressed(app,event):
         app.pacman.dir=k
         
 def timerFired(app):
-    if app.isWin==False:
+    if app.isWin==False and app.isLose==False:
         app.pacman.moveForward(app)
         randomizeGhostMovement(app)
         moveGhosts(app)
@@ -152,6 +153,8 @@ def redrawAll(app,canvas):
     drawGhosts(app,canvas)
     if app.isWin:
         canvas.create_text(app.width/2,app.height/2,text="WIN",font="Times 100 bold", fill="white")
+    if app.isLose:
+        canvas.create_text(app.width/2,app.height/2,text="DEAD",font="Times 100 bold", fill="white")
     
 def drawGrid(app,canvas):
     for row in range(len(app.board)):
