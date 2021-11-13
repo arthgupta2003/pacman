@@ -43,8 +43,8 @@ class pacChar(character):
     def __init__(self,fill,outline):
         super().__init__(fill,outline)
         self.dir="Up"
-        self.col=13
-        self.row=2
+        self.col=7
+        self.row=7
         
     def moveForward(self, app):
         super().moveForward(app)
@@ -116,15 +116,15 @@ def appStarted(app):
     app.isWin=False
     app.isLose=False
     app.numPellets=0
-    app.numRows=15
-    app.numCols=15
+    app.numRows=10
+    app.numCols=10
     createBoard(app)
     for row in app.board:
         print(row)
     app.margin=0
     app.cellWidth=(app.width-2*app.margin)/(app.numRows)
     app.cellHeight=(app.height-2*app.margin)/(app.numCols)
-    app.timerDelay=85
+    app.timerDelay=150
     app.score=0
     app.pacman=pacChar("yellow","black")
     # Inky, blinky, pinky, and clyde are the ghosts
