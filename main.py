@@ -209,10 +209,10 @@ def resetPathFinding(app):
     # Clyde pathfinds to pacman when he is far from pac-man, when he is close he pathfinds to bottom corner
     clydeDistanceFromPacman= ((app.pacman.row-app.clyde.row)**2+(app.pacman.col-app.clyde.col)**2)**0.5
     if clydeDistanceFromPacman<=8:
-        app.clyde.path=findPath(app,app.clyde.row,app.clyde.col,app.pacman.row,app.pacman.col)
+        app.clyde.path=findPath(app,app.clyde.row,app.clyde.col,20,6)
     else:
         # Always goes towards 20,6 when far from Pac-Man
-        app.clyde.path=findPath(app,app.clyde.row,app.clyde,20,6)
+        app.clyde.path=findPath(app,app.clyde.row,app.clyde.col,app.pacman.row,app.pacman.col)
          
         
     
@@ -226,7 +226,6 @@ def timerFired(app):
     if app.time%2==1:
         resetPathFinding(app)
     if app.isWin==False and app.isLose==False:
-        randomizeGhostMovement(app)
         moveGhosts(app)
         ghostCollisions(app)
         if app.isLose==False:
