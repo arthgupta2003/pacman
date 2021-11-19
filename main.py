@@ -213,8 +213,6 @@ def resetPathFinding(app):
     else:
         # Always goes towards 20,6 when far from Pac-Man
         app.clyde.path=findPath(app,app.clyde.row,app.clyde.col,app.pacman.row,app.pacman.col)
-         
-        
     
 def keyPressed(app,event):
     k=event.key
