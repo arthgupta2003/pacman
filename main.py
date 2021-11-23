@@ -169,8 +169,7 @@ def appStarted(app):
     app.numCols=28
     createStaticBoard(app)
     app.board=copy.deepcopy(app.staticBoard)
-    for row in app.board:
-        print(row)
+    generateRandomBoard(app)
     app.margin=0
     app.cellWidth=(app.width-2*app.margin)/(app.numRows)
     app.cellHeight=(app.height-2*app.margin)/(app.numCols)
@@ -184,6 +183,7 @@ def appStarted(app):
     app.clyde=ghost("orange","black",12,12)
     app.ghosts=[app.inky,app.blinky,app.pinky,app.clyde]
     resetPathFinding(app) #to initialize paths
+    
 
 def resetPathFinding(app):
     # Blinky pathfinds to pac-man's location
