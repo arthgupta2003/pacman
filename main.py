@@ -3,6 +3,46 @@ from cmu_112_graphics import *
 from classes import *
 import copy
 
+def appStarted(app):
+    # app.mode="regular"
+    app.isWin=False
+    app.isLose=False   
+    app.time=0
+    app.numPellets=348
+    app.numRows=28
+    app.numCols=28
+    createStaticBoard(app)
+    app.board=copy.deepcopy(app.staticBoard)
+    generateRandomBoard(app)
+    app.margin=0
+    app.cellWidth=(app.width-2*app.margin)/(app.numRows)
+    app.cellHeight=(app.height-2*app.margin)/(app.numCols)
+    app.timerDelay=150
+    app.score=0
+    app.pacman=pacChar("yellow","black",17,13)
+    # Inky, blinky, pinky, and clyde are the ghosts
+    app.inky=ghost("cyan","black",13,14)
+    app.blinky=ghost("red","black",14,14)
+    app.pinky=ghost("pink","black",14,13)
+    app.clyde=ghost("orange","black",13,13)
+    app.ghosts=[app.inky,app.blinky,app.pinky,app.clyde]
+    resetPathFinding(app) #to initialize paths
+    
+def timerFired(app):
+    app.time+=1
+    if app.isWin==False and app.isLose==False:
+        moveGhosts(app)
+        ghostCollisions(app)
+        if app.isLose==False:
+            app.pacman.moveForward(app)
+            ghostCollisions(app)
+
+def bottomRightCorner(app):
+    for r in range(app.numRows,-1,-1):
+        for c in range(app.numCols):
+            if app.board[r][c]!=1:
+                return (r,c)
+
 def generateRandomBoard(app):
     app.numPellets=0
     # Reset board
@@ -33,14 +73,9 @@ def generateRandomBoard(app):
             app.numPellets+=1
             for child in children:
                 openList.add(child)
-        openList.remove((parentRow,parentCol))          
-    # Clean up border
-    for r in range(app.numRows):
-        for c in range(app.numCols):
-            if r==0 or c==0 or r==app.numRows-1 or c==app.numCols-1:
-                app.board[r][c]=1
-                
-    # Clears up dead ends
+        openList.remove((parentRow,parentCol))    
+        
+    # Cleans up dead ends
     for r in range(app.numRows):
         for c in range(app.numCols):
             parentRow,parentCol=r,c
@@ -53,10 +88,34 @@ def generateRandomBoard(app):
                         continue
                     if app.board[newRow][newCol]==2:
                         neighboringPaths+=1
-                if neighboringPaths<=1:
-                    app.board[parentRow][parentCol]=1
+                if neighboringPaths==1:
+                    app.board[parentRow][parentCol]=1    
+    
+    #Get rids to random holes in maze that cannot be reached
+    for r in range(app.numRows):
+        for c in range(app.numCols):
+            parentRow,parentCol=r,c
+            neighboringPaths=0
+            if app.board[parentRow][parentCol]==2:
+                for drow,dcol in [(1,0),(0,1),(-1,0),(0,-1)]:
+                    newRow=drow+parentRow
+                    newCol=dcol+parentCol
+                    if newRow<0 or newRow>app.numRows-1 or newCol<0 or newCol>app.numCols-1:
+                        continue
+                    if app.board[newRow][newCol]==2:
+                        neighboringPaths+=1
+                if neighboringPaths==0:
+                    app.board[parentRow][parentCol]=1    
+      
+    # Clean up border
+    for r in range(app.numRows):
+        for c in range(app.numCols):
+            if r==1 or c==1 or r==app.numRows-2 or c==app.numCols-2:
+                app.board[r][c]=2
+            if r==0 or c==0 or r==app.numRows-1 or c==app.numCols-1:
+                app.board[r][c]=1
             
-    #Adds some holes to map
+    #Adds some holes to map between valid paths
     for r in range(app.numRows):
         for c in range(app.numCols):
             parentRow,parentCol=r,c
@@ -124,7 +183,9 @@ def findPath(app,startRow,startCol,endRow,endCol):
             if usefulChild:
                 openList.append(child)
         closedList.append(q)
-    return None
+    
+    # In case no path found, pathfind to ghost box
+    return findPath(app,startRow,startCol,13,14)
 
 def createStaticBoard(app):
     app.staticBoard=[[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 0, 0, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 1], [1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1], [1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1], [1, 1, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]]
@@ -133,8 +194,11 @@ def convertRowColToCoordinates(app,row,col):
     return col*app.cellWidth,row*app.cellHeight
 
 def moveGhosts(app):    
-    return
     for ghost in app.ghosts:
+        print(ghost.fill)
+        print(ghost.path)
+        if len(ghost.path)<5:
+            resetPathFinding(app)
         ghost.row=ghost.path[0][0]
         ghost.col=ghost.path[0][1]
         ghost.path.pop(0)
@@ -142,48 +206,13 @@ def moveGhosts(app):
 def drawGhosts(app,canvas):
     for ghost in app.ghosts:
         drawCharacter(app,canvas,ghost)
-
-def randomizeGhostMovement(app):
-    import random
-    directions= ["Left","Right","Down","Up"]
-    oppDirs={"Left":"Right","Right":"Left","Down":"Up","Up":"Down"}
-    for ghost in app.ghosts:
-        d=directions[random.randrange(0,4)]
-        # Ghosts are not allowed to reverse directions
-        if d!=ghost.dir and d!=oppDirs[ghost.dir]:
-            ghost.dir=d
     
 def ghostCollisions(app):
     if ((app.pacman.row==app.inky.row and app.pacman.col==app.inky.col) 
         or (app.pacman.row==app.blinky.row and app.pacman.col==app.blinky.col) 
         or (app.pacman.row==app.pinky.row and app.pacman.col==app.pinky.col) 
         or (app.pacman.row==app.clyde.row and app.pacman.col==app.clyde.col)):
-        app.isLose=True
-
-def appStarted(app):
-    app.isWin=False
-    app.isLose=False   
-    app.time=0
-    app.numPellets=348
-    app.numRows=28
-    app.numCols=28
-    createStaticBoard(app)
-    app.board=copy.deepcopy(app.staticBoard)
-    generateRandomBoard(app)
-    app.margin=0
-    app.cellWidth=(app.width-2*app.margin)/(app.numRows)
-    app.cellHeight=(app.height-2*app.margin)/(app.numCols)
-    app.timerDelay=150
-    app.score=0
-    app.pacman=pacChar("yellow","black",17,13)
-    # Inky, blinky, pinky, and clyde are the ghosts
-    app.inky=ghost("cyan","black",12,13)
-    app.blinky=ghost("red","black",13,13)
-    app.pinky=ghost("pink","black",13,12)
-    app.clyde=ghost("orange","black",12,12)
-    app.ghosts=[app.inky,app.blinky,app.pinky,app.clyde]
-    resetPathFinding(app) #to initialize paths
-    
+        app.isLose=True    
 
 def resetPathFinding(app):
     # Blinky pathfinds to pac-man's location
@@ -217,11 +246,13 @@ def resetPathFinding(app):
         
         
     # Clyde pathfinds to pacman when he is far from pac-man, when he is close he pathfinds to bottom corner
+    clydeTargetRow,clydeTargetCol=bottomRightCorner(app)  
+    print(clydeTargetRow,clydeTargetCol)
+    print(app.board[clydeTargetRow][clydeTargetCol])
     clydeDistanceFromPacman= ((app.pacman.row-app.clyde.row)**2+(app.pacman.col-app.clyde.col)**2)**0.5
     if clydeDistanceFromPacman<=8:
-        app.clyde.path=findPath(app,app.clyde.row,app.clyde.col,20,6)
+        app.clyde.path=findPath(app,app.clyde.row,app.clyde.col,17,13)
     else:
-        # Always goes towards 20,6 when far from Pac-Man
         app.clyde.path=findPath(app,app.clyde.row,app.clyde.col,app.pacman.row,app.pacman.col)
     
 def keyPressed(app,event):
@@ -230,17 +261,6 @@ def keyPressed(app,event):
         app.pacman.dir=k
     if k=="k":
         generateRandomBoard(app)
-        
-def timerFired(app):
-    app.time+=1
-    if app.time%2==1:
-        resetPathFinding(app)
-    if app.isWin==False and app.isLose==False:
-        moveGhosts(app)
-        ghostCollisions(app)
-        if app.isLose==False:
-            app.pacman.moveForward(app)
-            ghostCollisions(app)
         
 def redrawAll(app,canvas):
     canvas.create_rectangle(0,0,app.width,app.height,fill="black")
