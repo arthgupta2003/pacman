@@ -1,80 +1,91 @@
-from cmu_112_graphics import *
 import random
+from cmu_112_graphics import *
+from classes import *
+import copy
 
-class character():
-    def __init__(self,fill,outline,initRow,initCol):
-        self.dir="Right"
-        self.fill=fill
-        self.outline=outline
-        self.row=initRow
-        self.col=initCol
+def generateRandomBoard(app):
+    app.numPellets=0
+    # Reset board
+    for r in range(app.numRows):
+        for c in range(app.numCols):
+            app.board[r][c]=1
+            
+    # Using Randomized Prim's algorithm (source: https://en.wikipedia.org/wiki/Maze_generation_algorithm)
+    app.board[1][1]=0
+    closedList={(1,1)}
+    openList={(1,2),(2,1)} 
+    while openList!=set():
+        parentRow,parentCol=(random.sample(openList, 1))[0] #source: https://stackoverflow.com/questions/15837729/random-choice-from-set-python
+        visitedNeighbors=0
+        newRow,newCol=1,1
+        children=[]
+        for drow,dcol in [(1,0),(0,1),(-1,0),(0,-1)]:
+            newRow=drow+parentRow
+            newCol=dcol+parentCol
+            if newRow<0 or newRow>app.numRows-1 or newCol<0 or newCol>app.numCols-1:
+                continue
+            if (newRow,newCol) in closedList:
+                visitedNeighbors+=1
+            children.append((newRow,newCol))
+        if visitedNeighbors==1:
+            closedList.add((parentRow,parentCol))
+            app.board[parentRow][parentCol]=2
+            app.numPellets+=1
+            for child in children:
+                openList.add(child)
+        openList.remove((parentRow,parentCol))          
+    # Clean up border
+    for r in range(app.numRows):
+        for c in range(app.numCols):
+            if r==0 or c==0 or r==app.numRows-1 or c==app.numCols-1:
+                app.board[r][c]=1
+                
+    # Clears up dead ends
+    for r in range(app.numRows):
+        for c in range(app.numCols):
+            parentRow,parentCol=r,c
+            neighboringPaths=0
+            if app.board[parentRow][parentCol]==2:
+                for drow,dcol in [(1,0),(0,1),(-1,0),(0,-1)]:
+                    newRow=drow+parentRow
+                    newCol=dcol+parentCol
+                    if newRow<0 or newRow>app.numRows-1 or newCol<0 or newCol>app.numCols-1:
+                        continue
+                    if app.board[newRow][newCol]==2:
+                        neighboringPaths+=1
+                if neighboringPaths<=1:
+                    app.board[parentRow][parentCol]=1
+            
+    #Adds some holes to map
+    for r in range(app.numRows):
+        for c in range(app.numCols):
+            parentRow,parentCol=r,c
+            neighboringPaths=0
+            if app.board[parentRow][parentCol]==1:
+                for drow,dcol in [(1,0),(0,1),(-1,0),(0,-1)]:
+                    newRow=drow+parentRow
+                    newCol=dcol+parentCol
+                    if newRow<0 or newRow>app.numRows-1 or newCol<0 or newCol>app.numCols-1:
+                        continue
+                    if app.board[newRow][newCol]==2:
+                        neighboringPaths+=1
+                if neighboringPaths>=2:
+                    app.board[parentRow][parentCol]=1
     
-    def moveForward(self, app):
-        if self.dir=="Right":
-            self.col+=1
-            if character.invalidMove(self,app):
-                self.col-=1
-        elif self.dir=="Left":
-            self.col-=1
-            if character.invalidMove(self,app):
-                self.col+=1
-        elif self.dir=="Up":
-            self.row-=1
-            if character.invalidMove(self,app):
-                self.row+=1
-        elif self.dir=="Down":
-            self.row+=1
-            if character.invalidMove(self,app):
-                self.row-=1
-        
-    def invalidMove(self,app):
-        if self.row<1 or self.row>app.numRows-2 or self.col<1 or self.col>app.numCols-2 or app.board[self.row][self.col]==1:
-            return True
-        return False
+    # Add ghost box:
+    for i in range(11,19):
+        for j in range(9,19):
+            app.board[i][j]=app.staticBoard[i][j]
     
-    def draw(self,app,canvas):
-        # print(self.row,self.col)
-        x,y=convertRowColToCoordinates(app, self.row+0.5,self.col+0.5)
-        x+=app.margin
-        y+=app.margin
-        r= app.cellWidth/2
-        canvas.create_oval(x-r,y-r,x+r,y+r,fill=self.fill,outline=self.outline)
-
-class pacChar(character):
-    def __init__(self,fill,outline,initRow,initCol):
-        super().__init__(fill,outline,initRow,initCol)
-        self.dir="Up"
-        
-    def moveForward(self, app):
-        super().moveForward(app)
-        pacChar.consumePellet(self, app)
-        
-    def consumePellet(self, app):
-        if app.board[self.row][self.col]==2:
-            app.board[self.row][self.col]=0
-            app.score+=1
-            app.numPellets-=1
-            if app.numPellets<=0:
-                app.isWin=True
-        
-class ghost(character):
-    def __init__(self,fill,outline,initRow,initCol,path=[]):
-        super().__init__(fill,outline,initRow,initCol)
-        self.path=[]
-    
-class Point(object):
-    # Used for pathfinding
-    def __init__(self,row,col,goalRow,goalCol,g,parent):
-        self.row=row
-        self.col=col
-        self.goalRow=goalRow
-        self.goalCol=goalCol
-        self.g=g
-        self.h= abs(row-goalRow)+abs(col-goalCol)
-        self.f=self.g+self.h
-        self.parent=parent
+def drawCharacter(app,canvas,charObj):
+    x,y=convertRowColToCoordinates(app, charObj.row+0.5,charObj.col+0.5)
+    x+=app.margin
+    y+=app.margin
+    r= app.cellWidth/2
+    canvas.create_oval(x-r,y-r,x+r,y+r,fill=charObj.fill,outline=charObj.outline)
 
 def findPath(app,startRow,startCol,endRow,endCol):
+    # Pathfinding using A*
     openList=[Point(startRow,startCol,endRow,endCol,0,None)]
     # Openlist is initialized with the start point, and has no parent(since it is the highest in the tree of points)
     closedList=[]
@@ -115,16 +126,14 @@ def findPath(app,startRow,startCol,endRow,endCol):
         closedList.append(q)
     return None
 
-def createBoard(app):
-    app.board=[[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 0, 0, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 1], [1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1], [1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1], [1, 1, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]]
+def createStaticBoard(app):
+    app.staticBoard=[[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 0, 0, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 1], [1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1], [1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1], [1, 1, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]]
 
-def generateBoard(app):
-    pass
-
-def convertRowColToCoordinates(app, row,col):
+def convertRowColToCoordinates(app,row,col):
     return col*app.cellWidth,row*app.cellHeight
 
 def moveGhosts(app):    
+    return
     for ghost in app.ghosts:
         ghost.row=ghost.path[0][0]
         ghost.col=ghost.path[0][1]
@@ -132,7 +141,7 @@ def moveGhosts(app):
 
 def drawGhosts(app,canvas):
     for ghost in app.ghosts:
-        ghost.draw(app,canvas)
+        drawCharacter(app,canvas,ghost)
 
 def randomizeGhostMovement(app):
     import random
@@ -158,7 +167,8 @@ def appStarted(app):
     app.numPellets=348
     app.numRows=28
     app.numCols=28
-    createBoard(app)
+    createStaticBoard(app)
+    app.board=copy.deepcopy(app.staticBoard)
     for row in app.board:
         print(row)
     app.margin=0
@@ -218,6 +228,8 @@ def keyPressed(app,event):
     k=event.key
     if k=="Up" or k=="Down" or k=="Left" or k=="Right":
         app.pacman.dir=k
+    if k=="k":
+        generateRandomBoard(app)
         
 def timerFired(app):
     app.time+=1
@@ -234,7 +246,7 @@ def redrawAll(app,canvas):
     canvas.create_rectangle(0,0,app.width,app.height,fill="black")
     drawGrid(app,canvas)
     drawGhosts(app,canvas)
-    app.pacman.draw(app, canvas)
+    drawCharacter(app,canvas,app.pacman)
     if app.isWin:
         canvas.create_text(app.width/2,app.height/2,text="WIN",font="Times 100 bold", fill="white")
     if app.isLose:
@@ -248,7 +260,7 @@ def drawGrid(app,canvas):
                 x,y=convertRowColToCoordinates(app,row,col)
                 x+=app.margin
                 y+=app.margin
-                canvas.create_rectangle(x,y,x+app.cellWidth,y+app.cellHeight,fill="blue")
+                canvas.create_rectangle(x,y,x+app.cellWidth,y+app.cellHeight,fill="blue",outline="blue")
             elif app.board[row][col]==2:
                 # pellet
                 x,y=convertRowColToCoordinates(app,row+0.5,col+0.5)
@@ -257,4 +269,4 @@ def drawGrid(app,canvas):
                 r=app.cellWidth/6
                 canvas.create_oval(x-r,y-r,x+r,y+r,fill="yellow")
 
-runApp(width=540,height=540)
+runApp(width=800,height=800)
