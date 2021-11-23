@@ -4,7 +4,7 @@ from classes import *
 import copy
 
 def appStarted(app):
-    # app.mode="regular"
+    app.mode="title"
     app.isWin=False
     app.isLose=False   
     app.time=0
@@ -27,8 +27,13 @@ def appStarted(app):
     app.clyde=ghost("orange","black",13,13)
     app.ghosts=[app.inky,app.blinky,app.pinky,app.clyde]
     resetPathFinding(app) #to initialize paths
+    app.logo= app.loadImage('images/LOGO.png')
+
+def title_redrawAll(app,canvas):
+    canvas.create_rectangle(0,0,app.width,app.height,fill="black")
+    canvas.create_image(app.width/2,app.height/3, image=ImageTk.PhotoImage(app.logo))
     
-def timerFired(app):
+def game_timerFired(app):
     app.time+=1
     if app.isWin==False and app.isLose==False:
         moveGhosts(app)
@@ -37,14 +42,24 @@ def timerFired(app):
             app.pacman.moveForward(app)
             ghostCollisions(app)
 
-def bottomRightCorner(app):
-    for r in range(app.numRows,-1,-1):
-        for c in range(app.numCols):
-            if app.board[r][c]!=1:
-                return (r,c)
+def game_redrawAll(app,canvas):
+    canvas.create_rectangle(0,0,app.width,app.height,fill="black")
+    drawGrid(app,canvas)
+    drawGhosts(app,canvas)
+    drawCharacter(app,canvas,app.pacman)
+    if app.isWin:
+        canvas.create_text(app.width/2,app.height/2,text="WIN",font="Times 100 bold", fill="white")
+    if app.isLose:
+        canvas.create_text(app.width/2,app.height/2,text="DEAD",font="Times 100 bold", fill="white")
+
+def game_keyPressed(app,event):
+    k=event.key
+    if k=="Up" or k=="Down" or k=="Left" or k=="Right":
+        app.pacman.dir=k
+    if k=="k":
+        generateRandomBoard(app)
 
 def generateRandomBoard(app):
-    app.numPellets=0
     # Reset board
     for r in range(app.numRows):
         for c in range(app.numCols):
@@ -70,7 +85,6 @@ def generateRandomBoard(app):
         if visitedNeighbors==1:
             closedList.add((parentRow,parentCol))
             app.board[parentRow][parentCol]=2
-            app.numPellets+=1
             for child in children:
                 openList.add(child)
         openList.remove((parentRow,parentCol))    
@@ -131,10 +145,20 @@ def generateRandomBoard(app):
                 if neighboringPaths>=2:
                     app.board[parentRow][parentCol]=1
     
+    # Finally, count the number of pellets to track win condition
+    app.pellets=0
+    for r in app.board:
+        app.pellets+=r.count(2)
+    
     # Add ghost box:
     for i in range(11,19):
         for j in range(9,19):
             app.board[i][j]=app.staticBoard[i][j]
+    
+    # Finally, count the number of pellets to track win condition
+    app.pellets=0
+    for r in app.board:
+        app.pellets+=r.count(2)
     
 def drawCharacter(app,canvas,charObj):
     x,y=convertRowColToCoordinates(app, charObj.row+0.5,charObj.col+0.5)
@@ -255,23 +279,6 @@ def resetPathFinding(app):
     else:
         app.clyde.path=findPath(app,app.clyde.row,app.clyde.col,app.pacman.row,app.pacman.col)
     
-def keyPressed(app,event):
-    k=event.key
-    if k=="Up" or k=="Down" or k=="Left" or k=="Right":
-        app.pacman.dir=k
-    if k=="k":
-        generateRandomBoard(app)
-        
-def redrawAll(app,canvas):
-    canvas.create_rectangle(0,0,app.width,app.height,fill="black")
-    drawGrid(app,canvas)
-    drawGhosts(app,canvas)
-    drawCharacter(app,canvas,app.pacman)
-    if app.isWin:
-        canvas.create_text(app.width/2,app.height/2,text="WIN",font="Times 100 bold", fill="white")
-    if app.isLose:
-        canvas.create_text(app.width/2,app.height/2,text="DEAD",font="Times 100 bold", fill="white")
-    
 def drawGrid(app,canvas):
     for row in range(app.numRows):
         for col in range(app.numCols):
@@ -288,5 +295,11 @@ def drawGrid(app,canvas):
                 y+=app.margin
                 r=app.cellWidth/6
                 canvas.create_oval(x-r,y-r,x+r,y+r,fill="yellow")
+
+def bottomRightCorner(app):
+    for r in range(app.numRows,-1,-1):
+        for c in range(app.numCols):
+            if app.board[r][c]!=1:
+                return (r,c)
 
 runApp(width=800,height=800)
