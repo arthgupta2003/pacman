@@ -3,63 +3,75 @@ from cmu_112_graphics import *
 from classes import *
 import copy
 
-def appStarted(app):
-    app.mode="title"
-    app.isWin=False
-    app.isLose=False   
-    app.time=0
-    app.numPellets=348
-    app.numRows=28
-    app.numCols=28
-    createStaticBoard(app)
-    app.board=copy.deepcopy(app.staticBoard)
-    generateRandomBoard(app)
-    app.margin=0
-    app.cellWidth=(app.width-2*app.margin)/(app.numRows)
-    app.cellHeight=(app.height-2*app.margin)/(app.numCols)
-    app.timerDelay=150
+def appStarted(app):    
+    # Title screen
+    app.gameOver=False
+    app.numLives=3
     app.score=0
-    app.pacman=pacChar("yellow","black",17,13)
-    # Inky, blinky, pinky, and clyde are the ghosts
-    app.inky=ghost("cyan","black",13,14)
-    app.blinky=ghost("red","black",14,14)
-    app.pinky=ghost("pink","black",14,13)
-    app.clyde=ghost("orange","black",13,13)
-    app.ghosts=[app.inky,app.blinky,app.pinky,app.clyde]
-    resetPathFinding(app) #to initialize paths
+    app.mode="title"
+    app.staticBoard=[[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 0, 0, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 1], [1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1], [1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1], [1, 1, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]]
+    app.numPellets=348
+    app.board=copy.deepcopy(app.staticBoard)
     app.logo= app.loadImage('images/LOGO.png')
+    app.staticMazeButton=Button("Classic \nMode",250,400,380,500,resetGameConditions)
+    app.dynamicMazeButton=Button("Random \nMode",420,400,550,500,generateAndSetRandomBoard)
+    app.buttons=[app.staticMazeButton,app.dynamicMazeButton]
+    resetGameConditions(app)
 
 def title_redrawAll(app,canvas):
     canvas.create_rectangle(0,0,app.width,app.height,fill="black")
     canvas.create_image(app.width/2,app.height/3, image=ImageTk.PhotoImage(app.logo))
-    
-def game_timerFired(app):
-    app.time+=1
-    if app.isWin==False and app.isLose==False:
-        moveGhosts(app)
-        ghostCollisions(app)
-        if app.isLose==False:
-            app.pacman.moveForward(app)
-            ghostCollisions(app)
+    canvas.create_text(app.width/2,app.height-50,fill="white",text="Made by Arth Gupta",font="Times 16")
+    for button in app.buttons:
+        canvas.create_rectangle(button.x0,button.y0,button.x1,button.y1,fill=button.fill,outline=button.outline)
+        canvas.create_text((button.x0+button.x1)/2,(button.y0+button.y1)/2,text=button.text,fill="white",font="Times 24")
+        
+def title_mousePressed(app,event):
+    for button in app.buttons:
+        if button.isPressed(event.x,event.y):
+            button.action(app)
+            app.mode="game"
 
 def game_redrawAll(app,canvas):
     canvas.create_rectangle(0,0,app.width,app.height,fill="black")
     drawGrid(app,canvas)
+    if app.isHit==True:
+        return
     drawGhosts(app,canvas)
     drawCharacter(app,canvas,app.pacman)
     if app.isWin:
         canvas.create_text(app.width/2,app.height/2,text="WIN",font="Times 100 bold", fill="white")
-    if app.isLose:
-        canvas.create_text(app.width/2,app.height/2,text="DEAD",font="Times 100 bold", fill="white")
+    if app.gameOver:
+        canvas.create_rectangle(app.width/2-200,app.height/2-200,app.width/2+200,app.height/2+200,fill="black",outline="white")
+        canvas.create_text(app.width/2,app.height/2,text="GAME \nOVER",font="Times 100 bold", fill="white")
 
 def game_keyPressed(app,event):
     k=event.key
     if k=="Up" or k=="Down" or k=="Left" or k=="Right":
         app.pacman.dir=k
     if k=="k":
-        generateRandomBoard(app)
+        for ghost in app.ghosts:
+            print(f"{ghost.fill}-->{ghost.path}")
 
-def generateRandomBoard(app):
+def game_timerFired(app):
+    if app.gameOver==True:
+        return
+    app.time+=1
+    if app.time%8==0:
+        resetPathFinding(app)
+        if app.isHit==True:
+           resetGameConditions(app)
+    
+    
+    if app.isWin==False and app.isHit==False:
+        moveGhosts(app)
+        ghostCollisions(app)
+        if app.isHit==False:
+            app.pacman.moveForward(app)
+            ghostCollisions(app)
+
+def generateAndSetRandomBoard(app):
+    resetGameConditions(app)
     # Reset board
     for r in range(app.numRows):
         for c in range(app.numCols):
@@ -145,10 +157,6 @@ def generateRandomBoard(app):
                 if neighboringPaths>=2:
                     app.board[parentRow][parentCol]=1
     
-    # Finally, count the number of pellets to track win condition
-    app.pellets=0
-    for r in app.board:
-        app.pellets+=r.count(2)
     
     # Add ghost box:
     for i in range(11,19):
@@ -160,6 +168,26 @@ def generateRandomBoard(app):
     for r in app.board:
         app.pellets+=r.count(2)
     
+def resetGameConditions(app):
+    app.isWin=False
+    app.isHit=False   
+    app.time=0
+    app.numRows=28
+    app.numCols=28
+    app.margin=0
+    app.cellWidth=(app.width-2*app.margin)/(app.numRows)
+    app.cellHeight=(app.height-2*app.margin)/(app.numCols)
+    app.timerDelay=150
+    app.pacman=pacChar("yellow","black",17,13)
+    
+    # Inky, blinky, pinky, and clyde are the ghosts
+    app.inky=ghost("cyan","black",13,14)
+    app.blinky=ghost("red","black",14,14)
+    app.pinky=ghost("pink","black",14,13)
+    app.clyde=ghost("orange","black",13,13)
+    app.ghosts=[app.inky,app.blinky,app.pinky,app.clyde]
+    resetPathFinding(app) #to initialize paths
+ 
 def drawCharacter(app,canvas,charObj):
     x,y=convertRowColToCoordinates(app, charObj.row+0.5,charObj.col+0.5)
     x+=app.margin
@@ -211,17 +239,14 @@ def findPath(app,startRow,startCol,endRow,endCol):
     # In case no path found, pathfind to ghost box
     return findPath(app,startRow,startCol,13,14)
 
-def createStaticBoard(app):
-    app.staticBoard=[[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 0, 0, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 1], [1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1], [1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1], [1, 1, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]]
-
 def convertRowColToCoordinates(app,row,col):
     return col*app.cellWidth,row*app.cellHeight
 
 def moveGhosts(app):    
     for ghost in app.ghosts:
-        print(ghost.fill)
-        print(ghost.path)
-        if len(ghost.path)<5:
+##        print(ghost.fill)
+##        print(ghost.path)
+        if len(ghost.path)==0:
             resetPathFinding(app)
         ghost.row=ghost.path[0][0]
         ghost.col=ghost.path[0][1]
@@ -236,7 +261,11 @@ def ghostCollisions(app):
         or (app.pacman.row==app.blinky.row and app.pacman.col==app.blinky.col) 
         or (app.pacman.row==app.pinky.row and app.pacman.col==app.pinky.col) 
         or (app.pacman.row==app.clyde.row and app.pacman.col==app.clyde.col)):
-        app.isLose=True    
+        app.isHit=True
+        app.numLives-=1
+        if app.numLives<=0:
+            app.isHit=False
+            app.gameOver=True    
 
 def resetPathFinding(app):
     # Blinky pathfinds to pac-man's location
@@ -271,13 +300,12 @@ def resetPathFinding(app):
         
     # Clyde pathfinds to pacman when he is far from pac-man, when he is close he pathfinds to bottom corner
     clydeTargetRow,clydeTargetCol=bottomRightCorner(app)  
-    print(clydeTargetRow,clydeTargetCol)
-    print(app.board[clydeTargetRow][clydeTargetCol])
     clydeDistanceFromPacman= ((app.pacman.row-app.clyde.row)**2+(app.pacman.col-app.clyde.col)**2)**0.5
     if clydeDistanceFromPacman<=8:
-        app.clyde.path=findPath(app,app.clyde.row,app.clyde.col,17,13)
+        app.clyde.path=findPath(app,app.clyde.row,app.clyde.col,clydeTargetRow,clydeTargetCol)
     else:
         app.clyde.path=findPath(app,app.clyde.row,app.clyde.col,app.pacman.row,app.pacman.col)
+    
     
 def drawGrid(app,canvas):
     for row in range(app.numRows):
@@ -295,6 +323,10 @@ def drawGrid(app,canvas):
                 y+=app.margin
                 r=app.cellWidth/6
                 canvas.create_oval(x-r,y-r,x+r,y+r,fill="yellow")
+    canvas.create_rectangle(0,0,app.width,16,fill="blue")
+    canvas.create_text(app.width/2,16,fill="White",text=f"Score:{app.score*10}",font="times 16 bold")
+    canvas.create_text(app.width/1.05,16,fill="White",text=f"Lives:{app.numLives}",font="times 16 bold")
+
 
 def bottomRightCorner(app):
     for r in range(app.numRows,-1,-1):

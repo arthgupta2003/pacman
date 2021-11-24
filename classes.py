@@ -62,3 +62,26 @@ class Point(object):
         self.h=abs(row-goalRow)+abs(col-goalCol)
         self.f=self.g+self.h
         self.parent=parent
+        
+class Button(object):
+    def __init__(self,text,x0,y0,x1,y1,action):
+        self.action=(action)
+        self.text=text
+        self.fill="black"
+        self.outline="yellow"
+        # x0,y0 are top left coordinates of button
+        # x1,y1 are bottom right coordinates of button
+        self.x0=x0
+        self.y0=y0
+        self.x1=x1
+        self.y1=y1
+        
+    def isPressed(self,eventX,eventY):
+        if eventX>=self.x0 and eventX<=self.x1 and eventY>=self.y0 and eventY<=self.y1:
+            return True
+        else:
+            return False
+
+def foo():
+    print()
+
