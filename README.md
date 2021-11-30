@@ -8,7 +8,7 @@ A remake of the classic arcade game of Pac-Man, with infinite map generation and
 TKinter and PIL
 # List of shortcuts
 # Sources
-1. https://logos.fandom.com/wiki/Pac-Man(Logo on title screen)
+1. https://logos.fandom.com/wiki/Pac-Man (Logo on title screen)
 2. https://gameinternals.com/understanding-pac-man-ghost-behavior
 3. https://www.geeksforgeeks.org/a-search-algorithm/
 4. https://www.geeksforgeeks.org/prims-minimum-spanning-tree-mst-greedy-algo-5/
