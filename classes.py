@@ -25,7 +25,7 @@ class character():
                 self.row-=1
         
     def invalidMove(self,app):
-        if self.row<1 or self.row>app.numRows-2 or self.col<1 or self.col>app.numCols-2 or app.board[self.row][self.col]==1:
+        if self.row<0 or self.row>app.numRows-1 or self.col<0 or self.col>app.numCols-1 or app.board[self.row][self.col]==1:
             return True
         return False
 
@@ -37,14 +37,26 @@ class pacChar(character):
     def moveForward(self, app):
         super().moveForward(app)
         pacChar.consumePellet(self, app)
-        
+        if self.row==14 and self.col==0:
+            self.row=14
+            self.col=27
+            pacChar.consumePellet(self, app)
+        elif self.row==14 and self.col==27:
+            self.row=14
+            self.col=0
+            pacChar.consumePellet(self, app)
+
     def consumePellet(self, app):
         if app.board[self.row][self.col]==2:
             app.board[self.row][self.col]=0
-            app.score+=1
+            app.score+=10
             app.numPellets-=1
             if app.numPellets<=0:
                 app.isWin=True
+        if app.board[self.row][self.col]==3:
+            app.scatterMode=True
+            app.time=0
+            app.board[self.row][self.col]=0
         
 class ghost(character):
     def __init__(self,fill,outline,initRow,initCol,path=[]):
@@ -82,6 +94,4 @@ class Button(object):
         else:
             return False
 
-def foo():
-    print()
 

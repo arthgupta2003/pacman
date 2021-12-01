@@ -6,11 +6,18 @@ import copy
 def appStarted(app):    
     # Title screen
     app.gameOver=False
+    app.isWin=False
     app.numLives=3
     app.score=0
     app.mode="title"
-    app.staticBoard=[[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 0, 0, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 1], [1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1], [1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1], [1, 1, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]]
-    app.numPellets=348
+    app.scatterMode=False #for powerups
+    # In the board:
+    # 0=Empty Cell
+    # 1=Wall
+    # 2=Pellet
+    # 3=Power-Up
+    app.staticBoard=[[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 3, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 3, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 0, 0, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 0, 0, 0, 0, 0, 0, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1], [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1], [1, 2, 2, 3, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 3, 2, 2, 1], [1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1], [1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1], [1, 1, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]]
+    app.numPellets=343
     app.board=copy.deepcopy(app.staticBoard)
     app.logo= app.loadImage('images/LOGO.png')
     app.staticMazeButton=Button("Classic \nMode",250,400,380,500,resetGameConditions)
@@ -18,33 +25,19 @@ def appStarted(app):
     app.buttons=[app.staticMazeButton,app.dynamicMazeButton]
     resetGameConditions(app)
 
-def title_redrawAll(app,canvas):
-    canvas.create_rectangle(0,0,app.width,app.height,fill="black")
-    canvas.create_image(app.width/2,app.height/3, image=ImageTk.PhotoImage(app.logo))
-    canvas.create_text(app.width/2,app.height-50,fill="white",text="Made by Arth Gupta",font="Times 16")
-    for button in app.buttons:
-        canvas.create_rectangle(button.x0,button.y0,button.x1,button.y1,fill=button.fill,outline=button.outline)
-        canvas.create_text((button.x0+button.x1)/2,(button.y0+button.y1)/2,text=button.text,fill="white",font="Times 24")
-        
-def title_mousePressed(app,event):
-    for button in app.buttons:
-        if button.isPressed(event.x,event.y):
-            button.action(app)
-            app.mode="game"
-
 def game_redrawAll(app,canvas):
     canvas.create_rectangle(0,0,app.width,app.height,fill="black")
     drawGrid(app,canvas)
-    if app.isHit==True:
-        return
     drawGhosts(app,canvas)
     drawCharacter(app,canvas,app.pacman)
-    if app.isWin:
-        canvas.create_text(app.width/2,app.height/2,text="WIN",font="Times 100 bold", fill="white")
     if app.gameOver:
         canvas.create_rectangle(app.width/2-200,app.height/2-200,app.width/2+200,app.height/2+200,fill="black",outline="white")
-        canvas.create_text(app.width/2,app.height/2,text="GAME \nOVER",font="Times 100 bold", fill="white")
-
+        canvas.create_text(app.width/2,app.height/2,text="GAME \nOVER",font="Courier 100 bold", fill="white")
+        return
+    if app.isWin:
+        canvas.create_rectangle(app.width/2-200,app.height/2-200,app.width/2+200,app.height/2+200,fill="black",outline="white")
+        canvas.create_text(app.width/2,app.height/2,text=f"YOU \nWIN \nScore:{app.score}",font="Courier 60 bold", fill="white")
+    
 def game_keyPressed(app,event):
     k=event.key
     if k=="Up" or k=="Down" or k=="Left" or k=="Right":
@@ -52,24 +45,38 @@ def game_keyPressed(app,event):
     if k=="k":
         for ghost in app.ghosts:
             print(f"{ghost.fill}-->{ghost.path}")
+    if k=="t":
+        app.scatterMode=True
 
 def game_timerFired(app):
-    if app.gameOver==True:
-        return
-    app.time+=1
-    if app.time%8==0:
-        resetPathFinding(app)
-        if app.isHit==True:
-           resetGameConditions(app)
-    
-    
-    if app.isWin==False and app.isHit==False:
-        moveGhosts(app)
-        ghostCollisions(app)
-        if app.isHit==False:
+    print(app.pacman.row,app.pacman.col)
+    if app.scatterMode==False:
+        if app.gameOver==True:
+            return
+        app.time+=1
+        if app.time%8==0:
+            resetPathFinding(app)
+            if app.isHit==True:
+                resetGameConditions(app)
+        if app.isWin==False and app.isHit==False:
+            moveGhosts(app)
+            ghostCollisions(app)
+            if app.isHit==False:
+                app.pacman.moveForward(app)
+                ghostCollisions(app)
+                
+    elif app.scatterMode==True:
+        # Activates when pac-man eats powerup
+        if app.time<=20:
+            app.time+=1
+            randomizeGhostMovement(app)
+            ghostCollisions(app)
             app.pacman.moveForward(app)
             ghostCollisions(app)
-
+        else:
+            app.scatterMode=False
+            resetPathFinding(app)
+            
 def generateAndSetRandomBoard(app):
     resetGameConditions(app)
     # Reset board
@@ -77,7 +84,7 @@ def generateAndSetRandomBoard(app):
         for c in range(app.numCols):
             app.board[r][c]=1
             
-    # Using Randomized Prim's algorithm (source: https://en.wikipedia.org/wiki/Maze_generation_algorithm)
+    # Using Randomized Prim's algorithm (described in: https://en.wikipedia.org/wiki/Maze_generation_algorithm)
     app.board[1][1]=0
     closedList={(1,1)}
     openList={(1,2),(2,1)} 
@@ -162,7 +169,18 @@ def generateAndSetRandomBoard(app):
     for i in range(11,19):
         for j in range(9,19):
             app.board[i][j]=app.staticBoard[i][j]
-    
+            
+    # Add powerups
+    quads=[(0,0,app.numRows//2,app.numCols//2),(0,app.numCols//2,app.numRows//2,app.numCols),(app.numRows//2,0,app.numRows,app.numCols//2),(app.numRows//2,app.numCols//2,app.numRows,app.numCols)]
+    for r0,c0,r1,c1 in quads:
+        while True:    
+            a=random.randrange(r0,r1)
+            b=random.randrange(c0,c1)
+            print(a,b,app.board[a][b])
+            if app.board[a][b]==2:
+                app.board[a][b]=3
+                break
+
     # Finally, count the number of pellets to track win condition
     app.pellets=0
     for r in app.board:
@@ -189,14 +207,17 @@ def resetGameConditions(app):
     resetPathFinding(app) #to initialize paths
  
 def drawCharacter(app,canvas,charObj):
-    x,y=convertRowColToCoordinates(app, charObj.row+0.5,charObj.col+0.5)
+    x,y=convertRowColToCoordinates(app,charObj.row+0.5,charObj.col+0.5)
     x+=app.margin
     y+=app.margin
     r= app.cellWidth/2
-    canvas.create_oval(x-r,y-r,x+r,y+r,fill=charObj.fill,outline=charObj.outline)
+    if app.scatterMode==False or charObj==app.pacman:
+        canvas.create_oval(x-r,y-r,x+r,y+r,fill=charObj.fill,outline=charObj.outline)
+    elif app.scatterMode==True:
+        canvas.create_oval(x-r,y-r,x+r,y+r,fill="magenta",outline="magenta")
 
-def findPath(app,startRow,startCol,endRow,endCol):
-    # Pathfinding using A*
+def aStarSearch(app,startRow,startCol,endRow,endCol):
+    # Pathfinding using A*(logic from:https://www.geeksforgeeks.org/a-search-algorithm/)
     openList=[Point(startRow,startCol,endRow,endCol,0,None)]
     # Openlist is initialized with the start point, and has no parent(since it is the highest in the tree of points)
     closedList=[]
@@ -237,15 +258,13 @@ def findPath(app,startRow,startCol,endRow,endCol):
         closedList.append(q)
     
     # In case no path found, pathfind to ghost box
-    return findPath(app,startRow,startCol,13,14)
+    return aStarSearch(app,startRow,startCol,13,14)
 
 def convertRowColToCoordinates(app,row,col):
     return col*app.cellWidth,row*app.cellHeight
 
 def moveGhosts(app):    
     for ghost in app.ghosts:
-##        print(ghost.fill)
-##        print(ghost.path)
         if len(ghost.path)==0:
             resetPathFinding(app)
         ghost.row=ghost.path[0][0]
@@ -257,19 +276,26 @@ def drawGhosts(app,canvas):
         drawCharacter(app,canvas,ghost)
     
 def ghostCollisions(app):
-    if ((app.pacman.row==app.inky.row and app.pacman.col==app.inky.col) 
-        or (app.pacman.row==app.blinky.row and app.pacman.col==app.blinky.col) 
-        or (app.pacman.row==app.pinky.row and app.pacman.col==app.pinky.col) 
-        or (app.pacman.row==app.clyde.row and app.pacman.col==app.clyde.col)):
-        app.isHit=True
-        app.numLives-=1
-        if app.numLives<=0:
-            app.isHit=False
-            app.gameOver=True    
-
+    if app.scatterMode==False:
+        if ((app.pacman.row==app.inky.row and app.pacman.col==app.inky.col) 
+            or (app.pacman.row==app.blinky.row and app.pacman.col==app.blinky.col) 
+            or (app.pacman.row==app.pinky.row and app.pacman.col==app.pinky.col) 
+            or (app.pacman.row==app.clyde.row and app.pacman.col==app.clyde.col)):
+            app.isHit=True
+            app.numLives-=1
+            if app.numLives<=0:
+                app.gameOver=True    
+    elif app.scatterMode==True:
+        for ghost in app.ghosts:
+            if app.pacman.row==ghost.row and app.pacman.col==ghost.col:
+                app.score+=50
+                ghost.row=13
+                ghost.col=14
+                
 def resetPathFinding(app):
+    # Source: https://gameinternals.com/understanding-pac-man-ghost-behavior
     # Blinky pathfinds to pac-man's location
-    app.blinky.path=findPath(app,app.inky.row,app.inky.col,app.pacman.row,app.pacman.col)
+    app.blinky.path=aStarSearch(app,app.inky.row,app.inky.col,app.pacman.row,app.pacman.col)
     
 
     # Inky pathfinds to random tile near pac-man
@@ -280,7 +306,7 @@ def resetPathFinding(app):
         newCol=app.pacman.col+dcol
         if newRow<0 or newRow>app.numRows-1 or newCol<0 or newCol>app.numCols-1 or app.board[newRow][newCol]==1:
             continue
-        app.inky.path=findPath(app,app.inky.row,app.inky.col,newRow,newCol)
+        app.inky.path=aStarSearch(app,app.inky.row,app.inky.col,newRow,newCol)
         break
     
     
@@ -294,7 +320,7 @@ def resetPathFinding(app):
         newCol=app.pacman.col+dcol
         if newRow<0 or newRow>app.numRows-1 or newCol<0 or newCol>app.numCols-1 or app.board[newRow][newCol]==1:
             continue
-        app.pinky.path=findPath(app,app.pinky.row,app.pinky.col,newRow,newCol)
+        app.pinky.path=aStarSearch(app,app.pinky.row,app.pinky.col,newRow,newCol)
         break
         
         
@@ -302,12 +328,14 @@ def resetPathFinding(app):
     clydeTargetRow,clydeTargetCol=bottomRightCorner(app)  
     clydeDistanceFromPacman= ((app.pacman.row-app.clyde.row)**2+(app.pacman.col-app.clyde.col)**2)**0.5
     if clydeDistanceFromPacman<=8:
-        app.clyde.path=findPath(app,app.clyde.row,app.clyde.col,clydeTargetRow,clydeTargetCol)
+        app.clyde.path=aStarSearch(app,app.clyde.row,app.clyde.col,clydeTargetRow,clydeTargetCol)
     else:
-        app.clyde.path=findPath(app,app.clyde.row,app.clyde.col,app.pacman.row,app.pacman.col)
+        app.clyde.path=aStarSearch(app,app.clyde.row,app.clyde.col,app.pacman.row,app.pacman.col)
     
     
-def drawGrid(app,canvas):
+def drawGrid(app,canvas,gridColor="blue"):
+    if app.scatterMode==True:
+        gridColor="green"
     for row in range(app.numRows):
         for col in range(app.numCols):
             if app.board[row][col]==1:
@@ -315,7 +343,7 @@ def drawGrid(app,canvas):
                 x,y=convertRowColToCoordinates(app,row,col)
                 x+=app.margin
                 y+=app.margin
-                canvas.create_rectangle(x,y,x+app.cellWidth,y+app.cellHeight,fill="blue",outline="blue")
+                canvas.create_rectangle(x,y,x+app.cellWidth,y+app.cellHeight,fill=gridColor,outline=gridColor)
             elif app.board[row][col]==2:
                 # pellet
                 x,y=convertRowColToCoordinates(app,row+0.5,col+0.5)
@@ -323,10 +351,39 @@ def drawGrid(app,canvas):
                 y+=app.margin
                 r=app.cellWidth/6
                 canvas.create_oval(x-r,y-r,x+r,y+r,fill="yellow")
-    canvas.create_rectangle(0,0,app.width,16,fill="blue")
-    canvas.create_text(app.width/2,16,fill="White",text=f"Score:{app.score*10}",font="times 16 bold")
-    canvas.create_text(app.width/1.05,16,fill="White",text=f"Lives:{app.numLives}",font="times 16 bold")
+            elif app.board[row][col]==3:
+                # power-up
+                if app.time//3%2==0: #conditional makes powerup blink
+                    x,y=convertRowColToCoordinates(app,row+0.5,col+0.5)
+                    x+=app.margin
+                    y+=app.margin
+                    r=app.cellWidth/3
+                    canvas.create_oval(x-r,y-r,x+r,y+r,fill="yellow")
 
+    canvas.create_rectangle(0,0,app.width,16,fill="blue")
+    canvas.create_text(app.width/2,16,fill="White",text=f"Score:{app.score}",font="times 16 bold")
+    canvas.create_text(app.width/1.05,16,fill="White",text=f"Lives:{app.numLives}",font="times 16 bold")
+    
+def randomizeGhostMovement(app):
+    import random
+    directions= ["Left","Right","Down","Up"]
+    for ghost in app.ghosts:
+        ghost.dir=directions[random.randrange(0,4)]
+        ghost.moveForward(app)
+    
+def title_redrawAll(app,canvas):
+    canvas.create_rectangle(0,0,app.width,app.height,fill="black")
+    canvas.create_image(app.width/2,app.height/3, image=ImageTk.PhotoImage(app.logo))
+    canvas.create_text(app.width/2,app.height-50,fill="white",text="Made by Arth Gupta\n15-112 Term Project",font="Times 16")
+    for button in app.buttons:
+        canvas.create_rectangle(button.x0-20,button.y0,button.x1,button.y1,fill=button.fill,outline=button.outline)
+        canvas.create_text((button.x0+button.x1)/2,(button.y0+button.y1)/2,text=button.text,fill="white",font="Courier 24")
+        
+def title_mousePressed(app,event):
+    for button in app.buttons:
+        if button.isPressed(event.x,event.y):
+            button.action(app)
+            app.mode="game"
 
 def bottomRightCorner(app):
     for r in range(app.numRows,-1,-1):
