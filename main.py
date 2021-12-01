@@ -32,7 +32,7 @@ def game_redrawAll(app,canvas):
     drawCharacter(app,canvas,app.pacman)
     if app.gameOver:
         canvas.create_rectangle(app.width/2-200,app.height/2-200,app.width/2+200,app.height/2+200,fill="black",outline="white")
-        canvas.create_text(app.width/2,app.height/2,text="GAME \nOVER",font="Courier 100 bold", fill="white")
+        canvas.create_text(app.width/2,app.height/2,text=f"  GAME \n  OVER\nScore:{app.score}",font="Courier 60 bold", fill="white")
         return
     if app.isWin:
         canvas.create_rectangle(app.width/2-200,app.height/2-200,app.width/2+200,app.height/2+200,fill="black",outline="white")
@@ -348,7 +348,7 @@ def drawGrid(app,canvas,gridColor="blue"):
                 x,y=convertRowColToCoordinates(app,row,col)
                 x+=app.margin
                 y+=app.margin
-                canvas.create_rectangle(x,y,x+app.cellWidth,y+app.cellHeight,fill=gridColor,outline=gridColor)
+                canvas.create_rectangle(x,y,x+app.cellWidth,y+app.cellHeight,fill=gridColor,outline="dark "+gridColor)
             elif app.board[row][col]==2:
                 # pellet
                 x,y=convertRowColToCoordinates(app,row+0.5,col+0.5)
@@ -366,8 +366,8 @@ def drawGrid(app,canvas,gridColor="blue"):
                     canvas.create_oval(x-r,y-r,x+r,y+r,fill="yellow")
 
     canvas.create_rectangle(0,0,app.width,16,fill="blue")
-    canvas.create_text(app.width/2,16,fill="White",text=f"Score:{app.score}",font="times 16 bold")
-    canvas.create_text(app.width/1.05,16,fill="White",text=f"Lives:{app.numLives}",font="times 16 bold")
+    canvas.create_text(app.width/2,16,fill="White",text=f"Score:{app.score}",font="Courier 16 bold")
+    canvas.create_text(app.width/1.05,16,fill="White",text=f"Lives:{app.numLives}",font="Courier 16 bold")
     
 def randomizeGhostMovement(app):
     import random
