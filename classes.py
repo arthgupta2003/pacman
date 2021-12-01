@@ -50,6 +50,8 @@ class pacChar(character):
         if app.board[self.row][self.col]==2:
             app.board[self.row][self.col]=0
             app.score+=10
+            if app.scatterMode==True:
+                app.score+=10
             app.numPellets-=1
             if app.numPellets<=0:
                 app.isWin=True

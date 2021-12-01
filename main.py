@@ -67,7 +67,7 @@ def game_timerFired(app):
                 
     elif app.scatterMode==True:
         # Activates when pac-man eats powerup
-        if app.time<=20:
+        if app.time<=25:
             app.time+=1
             randomizeGhostMovement(app)
             ghostCollisions(app)
@@ -109,20 +109,21 @@ def generateAndSetRandomBoard(app):
         openList.remove((parentRow,parentCol))    
         
     # Cleans up dead ends
-    for r in range(app.numRows):
-        for c in range(app.numCols):
-            parentRow,parentCol=r,c
-            neighboringPaths=0
-            if app.board[parentRow][parentCol]==2:
-                for drow,dcol in [(1,0),(0,1),(-1,0),(0,-1)]:
-                    newRow=drow+parentRow
-                    newCol=dcol+parentCol
-                    if newRow<0 or newRow>app.numRows-1 or newCol<0 or newCol>app.numCols-1:
-                        continue
-                    if app.board[newRow][newCol]==2:
-                        neighboringPaths+=1
-                if neighboringPaths==1:
-                    app.board[parentRow][parentCol]=1    
+    for x in range(2):
+        for r in range(app.numRows):
+            for c in range(app.numCols):
+                parentRow,parentCol=r,c
+                neighboringPaths=0
+                if app.board[parentRow][parentCol]==2:
+                    for drow,dcol in [(1,0),(0,1),(-1,0),(0,-1)]:
+                        newRow=drow+parentRow
+                        newCol=dcol+parentCol
+                        if newRow<0 or newRow>app.numRows-1 or newCol<0 or newCol>app.numCols-1:
+                            continue
+                        if app.board[newRow][newCol]==2:
+                            neighboringPaths+=1
+                    if neighboringPaths==1:
+                        app.board[parentRow][parentCol]=1    
     
     #Get rids to random holes in maze that cannot be reached
     for r in range(app.numRows):
@@ -169,7 +170,7 @@ def generateAndSetRandomBoard(app):
     for i in range(11,19):
         for j in range(9,19):
             app.board[i][j]=app.staticBoard[i][j]
-            
+             
     # Add powerups
     quads=[(0,0,app.numRows//2,app.numCols//2),(0,app.numCols//2,app.numRows//2,app.numCols),(app.numRows//2,0,app.numRows,app.numCols//2),(app.numRows//2,app.numCols//2,app.numRows,app.numCols)]
     for r0,c0,r1,c1 in quads:
@@ -180,6 +181,10 @@ def generateAndSetRandomBoard(app):
             if app.board[a][b]==2:
                 app.board[a][b]=3
                 break
+    
+    # Add wraparound tunnels
+    app.board[14][0]=2
+    app.board[14][27]=2
 
     # Finally, count the number of pellets to track win condition
     app.pellets=0

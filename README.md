@@ -10,6 +10,7 @@ A remake of the classic arcade game of Pac-Man, with infinite map generation and
 # Libraries used
 TKinter and PIL
 # List of shortcuts
+None
 # Sources
 1. https://logos.fandom.com/wiki/Pac-Man (Logo on title screen)
 2. https://gameinternals.com/understanding-pac-man-ghost-behavior
