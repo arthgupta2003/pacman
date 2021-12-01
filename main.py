@@ -42,14 +42,10 @@ def game_keyPressed(app,event):
     k=event.key
     if k=="Up" or k=="Down" or k=="Left" or k=="Right":
         app.pacman.dir=k
-    if k=="k":
-        for ghost in app.ghosts:
-            print(f"{ghost.fill}-->{ghost.path}")
-    if k=="t":
-        app.scatterMode=True
+    if k=="r":
+        appStarted(app)
 
 def game_timerFired(app):
-    print(app.pacman.row,app.pacman.col)
     if app.scatterMode==False:
         if app.gameOver==True:
             return
@@ -177,7 +173,6 @@ def generateAndSetRandomBoard(app):
         while True:    
             a=random.randrange(r0,r1)
             b=random.randrange(c0,c1)
-            print(a,b,app.board[a][b])
             if app.board[a][b]==2:
                 app.board[a][b]=3
                 break
@@ -246,8 +241,6 @@ def aStarSearch(app,startRow,startCol,endRow,endCol):
             if child.row==child.goalRow and child.col==child.goalCol:
                 final=[]
                 s=child
-                # print(child.row)
-                # print(s.row)
                 while s!=None:
                     final.append((s.row,s.col))
                     s=s.parent
