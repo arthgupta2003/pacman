@@ -1,5 +1,7 @@
 # Pac-Man
 A remake of the classic arcade game of Pac-Man with infinite map generation.
+#Demo
+https://youtu.be/U3d-5JefdQQ
 # How to Run
 1. Install PIL as outlined [here](https://www.cs.cmu.edu/~112/notes/notes-graphics.html#installingModules).
 2. Clone the repository to your system and unzip the file.
